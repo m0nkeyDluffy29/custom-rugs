@@ -182,3 +182,28 @@ func Login(c *gin.Context) {
 		"token": token,
 	})
 }
+
+func DeleteRugRequest(c *gin.Context) {
+	idstr := c.Param("id")
+	id, err := strconv.Atoi(idstr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request ID"})
+		return
+	}
+
+	result, err := db.DB.Exec("DELETE FROM CUSTOM_RUGS WHERE ID = ?", id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete rug request"})
+		return
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get rows affected"})
+		return
+	}
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Rug request not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Rug request deleted successfully"})
+}

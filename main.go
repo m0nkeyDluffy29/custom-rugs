@@ -39,6 +39,7 @@ func main() {
 	protectedAPIS.Use(auth.AuthMiddleware())
 	protectedAPIS.GET("/rug-requests", handlers.GetAllRugRequests)
 	protectedAPIS.GET("/rug-request/:id", handlers.UpdateRugRequestStatus)
+	protectedAPIS.DELETE("/rug-request/:id", handlers.DeleteRugRequest)
 
 	port := ":8080"
 	log.Printf("Server running on port %s", port)
