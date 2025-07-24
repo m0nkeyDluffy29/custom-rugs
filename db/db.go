@@ -30,6 +30,18 @@ func InitDB(datasource string) {
 	if err != nil {
 		log.Fatalf("Failed to create table: %v", err)
 	}
+	createTABLESQL = `
+	CREATE TABLE IF NOT EXISTS Users (
+		ID UUID PRIMARY KEY,
+		NAME TEXT NOT NULL,
+		EMAIL TEXT NOT NULL,
+		PASS_HASH TEXT NOT NULL,
+		CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`
+
+	_, err = DB.Exec(createTABLESQL)
+	if err != nil {
+		log.Fatalf("Failed to create table: %v", err)
+	}
 	log.Println("Database initialized successfully")
 }
 
