@@ -35,10 +35,12 @@ func main() {
 	router.POST("/rug-request", handlers.SubmitRugRequest)
 	router.POST("/new-admin", handlers.AddAdminUser)
 	router.POST("/login", handlers.Login)
+	router.GET("/completed-requests", handlers.GetCompletedRequest)
+
 	protectedAPIS := router.Group("/admin")
 	protectedAPIS.Use(auth.AuthMiddleware())
 	protectedAPIS.GET("/rug-requests", handlers.GetAllRugRequests)
-	protectedAPIS.GET("/rug-request/:id", handlers.UpdateRugRequestStatus)
+	protectedAPIS.PUT("/rug-request/:id", handlers.UpdateRugRequestStatus)
 	protectedAPIS.DELETE("/rug-request/:id", handlers.DeleteRugRequest)
 
 	port := ":8080"

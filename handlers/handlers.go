@@ -207,3 +207,44 @@ func DeleteRugRequest(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Rug request deleted successfully"})
 }
+
+func GetCompletedRequest(c *gin.Context) {
+	q := "SELECT ID, NAME, EMAIL, DETAILS, STATUS, CREATED_AT FROM CUSTOM_RUGS WHERE STATUS = 'COMPLETED' ORDER BY CREATED_AT DESC"
+	rows, err := db.DB.Query(q)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed To retrieve request"})
+		return
+	}
+	defer rows.Close()
+
+	var requests []models.RugRequest
+	for rows.Next() {
+		var req models.RugRequest
+		var createdAtStr string
+		if err := rows.Scan(&req.ID, &req.Name, &req.EMAIL, &req.Details, &req.STATUS, &createdAtStr); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan request"})
+			return
+		}
+		req.CREATED_AT, err = time.Parse(time.RFC3339, createdAtStr)
+		if err != nil {
+			req.CREATED_AT = time.Time{}
+		}
+		requests = append(requests, req)
+	}
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error iterating over requests"})
+		return
+	}
+	if len(requests) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message":  "No completed requests found",
+			"requests": []models.RugRequest{},
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"requests": requests,
+		"count":    len(requests),
+		"message":  "Completed requests retrieved successfully",
+	})
+}
